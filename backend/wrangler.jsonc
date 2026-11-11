@@ -1,0 +1,5 @@
+{
+  "name": "vh-rewards-api",
+  "main": "src/app.ts",
+  "compatibility_date": "2026-11-11"
+}
