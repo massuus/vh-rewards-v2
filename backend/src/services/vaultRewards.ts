@@ -1,5 +1,6 @@
 import { VaultRewardsResponse, VaultAllRewardsResponse } from "../types/vaultRewards"
 import type { RewardSet } from '../types/rewardSet'
+import { cache } from './cache'
 
 async function GetPlayerRewards(
   type: string,
@@ -7,7 +8,6 @@ async function GetPlayerRewards(
   apiKey: string
 ): Promise<VaultRewardsResponse> {
   const url = new URL('https://rewards.vaulthunters.gg/rewards')
-  const cache = caches.default
 
   if (type === 'minecraft') {
     url.searchParams.set('minecraft', value)
@@ -17,12 +17,10 @@ async function GetPlayerRewards(
     throw new Error(`Unsupported player identifier type: ${type}`)
   }
 
-  // Check cache first
-  let response = await cache.match(url.toString())
+  let response = await caches.default.match(url.toString()) 
 
+  const cacheMiss = !response
   if (!response) {
-    console.log(`Cache MISS: ${value}`)
-
     const upstream = await fetch(url.toString(), {
       headers: {
         Authorization: `Bearer ${apiKey}`
@@ -33,21 +31,22 @@ async function GetPlayerRewards(
       throw new Error(`Failed to fetch rewards for ${type} ${value}: ${upstream.status}`)
     }
 
-    response = new Response(upstream.body, upstream)
-    response.headers.set('Cache-Control', 'public, max-age=3600') // 1 hour
-
-    await cache.put(url.toString(), response.clone())
+    response = upstream
   } 
 
-  return (await response.json()) as VaultRewardsResponse
+  const data = await response.json() as VaultRewardsResponse
+  if (cacheMiss) {
+    await cache(url.toString(), data)
+  }
+  return data
 }
 
 async function GetAllRewards(): Promise<VaultAllRewardsResponse> {
   const url = 'https://rewards.vaulthunters.gg/rewards/sets/all'
-  const cache = caches.default
 
-  let response = await cache.match(url)
+  let response = await caches.default.match(url)
 
+  const cacheMiss = !response
   if (!response) {
     const upstream = await fetch(url)
 
@@ -55,14 +54,14 @@ async function GetAllRewards(): Promise<VaultAllRewardsResponse> {
       throw new Error(`Failed to fetch all rewards: ${upstream.status}`)
     }
 
-    response = new Response(upstream.body, upstream)
-    response.headers.set('Cache-Control', 'public, max-age=3600') // 1 hour
-
-    await cache.put(url, response.clone())
+    response = upstream
   } 
 
   const rewards = (await response.json()) as RewardSet[]
 
+  if (cacheMiss) {
+    await cache(url, rewards)
+  }
   return { rewards }
 }
 export { GetPlayerRewards, GetAllRewards }

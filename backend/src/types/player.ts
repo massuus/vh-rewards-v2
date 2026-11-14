@@ -1,4 +1,5 @@
 import { RewardSet } from "./rewardSet";
+import { PatreonData } from "./patreon";
 
   type PlayerIdentifier =
   | { type: 'minecraft'; value: string }
@@ -8,8 +9,10 @@ import { RewardSet } from "./rewardSet";
   interface PlayerData { 
   twitchUsername: string
   minecraftId: string
+  minecraftUsername: string
   ObtainedSets: RewardSet[]
   UnObtainedSets: RewardSet[]
+  PatreonData: PatreonData
 }
 
-  export { PlayerIdentifier, PlayerData }
+export { PlayerIdentifier, PlayerData }

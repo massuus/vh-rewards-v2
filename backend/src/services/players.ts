@@ -1,8 +1,9 @@
 import {GetAllRewards, GetPlayerRewards} from '../services/vaultRewards'
-import { resolveMinecraftUsername } from '../services/minecraft'
+import { getMinecraftUUIDByUsername, getMinecraftUsernameByUUID } from '../services/minecraft'
 import { PlayerIdentifier, PlayerData } from '../types/player';
 import { VaultRewardsResponse } from '../types/vaultRewards';
 import type { RewardSet } from '../types/rewardSet';
+import { getUserPatreonDataByUUID } from './patreon';
 
 async function getPlayerRewards(
   identifier: PlayerIdentifier,
@@ -10,13 +11,19 @@ async function getPlayerRewards(
 ) {
     let rewards: VaultRewardsResponse;
 
-    switch (identifier.type) {
-    case 'minecraft':
-      const uuid = await resolveMinecraftUsername(identifier.value)
+    let minecraftUsername: string = '';
+
+    if (identifier.type === 'minecraft') {
+      minecraftUsername = identifier.value
+      const uuid = await getMinecraftUUIDByUsername(identifier.value)
       identifier.value = uuid
     }
 
     rewards = await GetPlayerRewards(identifier.type, identifier.value, apiKey)
+    
+    if (identifier.type === 'twitch' && rewards.minecraftId) {
+      minecraftUsername = await getMinecraftUsernameByUUID(rewards.minecraftId)
+    }
 
     const allRewards = await GetAllRewards()
 
@@ -32,12 +39,16 @@ async function getPlayerRewards(
         }
     }
 
+    const patreonData = await getUserPatreonDataByUUID(rewards.minecraftId)
+
   let playerData : PlayerData;
   playerData = {
     twitchUsername: rewards.twitchUsername,
-    minecraftId: rewards.minecraftId,
+    minecraftId: identifier.type === 'minecraft' ? rewards.id: rewards.minecraftId,
+    minecraftUsername: minecraftUsername,
     ObtainedSets: ObtainedSets,
-    UnObtainedSets: UnObtainedSets
+    UnObtainedSets: UnObtainedSets,
+    PatreonData: patreonData
   };
     
   return playerData

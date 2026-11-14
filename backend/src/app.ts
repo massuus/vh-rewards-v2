@@ -5,7 +5,7 @@ import rewards from './routes/rewards'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-app.get('/health', (c) => {
+app.get('/api/health', (c) => {
   return c.json({ status: 'ok' })
 })
 

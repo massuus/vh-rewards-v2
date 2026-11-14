@@ -30,9 +30,18 @@ players.get('/', async (c) => {
   }
 
   const apiKey = c.env.VAULT_REWARDS_API_KEY
-  const player = await getPlayerRewards(identifier, apiKey)
 
-  return c.json({ player })
+  try {
+    const player = await getPlayerRewards(identifier, apiKey)
+    return c.json({ player })
+  } 
+  catch (error) {
+    if (error instanceof Error) {
+      return c.json({ error: error.message }, 500)
+    } else {
+      return c.json({ error: 'An unknown error occurred.' }, 500)
+    }
+  }
 })
 
 export default players
