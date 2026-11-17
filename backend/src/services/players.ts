@@ -25,20 +25,6 @@ async function getPlayerRewards(
       minecraftUsername = await getMinecraftUsernameByUUID(rewards.minecraftId)
     }
 
-    const allRewards = await GetAllRewards()
-
-    const unlockedIds = new Set(rewards.sets)
-    let ObtainedSets: RewardSet[] = []
-    let UnObtainedSets: RewardSet[] = []
-
-    for (const set of allRewards.rewards) {
-        if (unlockedIds.has(set.id)) {
-            ObtainedSets.push(set)
-        } else {
-            UnObtainedSets.push(set)
-        }
-    }
-
     const patreonData = await getUserPatreonDataByUUID(rewards.minecraftId)
 
   let playerData : PlayerData;
@@ -46,8 +32,7 @@ async function getPlayerRewards(
     twitchUsername: rewards.twitchUsername,
     minecraftId: identifier.type === 'minecraft' ? rewards.id: rewards.minecraftId,
     minecraftUsername: minecraftUsername,
-    ObtainedSets: ObtainedSets,
-    UnObtainedSets: UnObtainedSets,
+    ObtainedSets: rewards.sets,
     PatreonData: patreonData
   };
     

@@ -13,7 +13,13 @@ async function getUserPatreonDataByUUID(uuid: string): Promise<PatreonData> {
         )
     }
 
-    const data = await response.json() as PatreonData
+    const payload = await response.json() as PatreonData
+
+    const data: PatreonData = {
+    tier: payload.tier,
+    currentTier: payload.currentTier,
+    }
+    
     if (cacheMiss) {
         await cache(url, data, 86400)
     }

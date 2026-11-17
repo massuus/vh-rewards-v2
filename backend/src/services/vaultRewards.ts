@@ -60,7 +60,7 @@ async function GetAllRewards(): Promise<VaultAllRewardsResponse> {
   const rewards = (await response.json()) as RewardSet[]
 
   if (cacheMiss) {
-    await cache(url, rewards)
+    await cache(url, rewards, 86400)
   }
   return { rewards }
 }

@@ -1,5 +1,4 @@
-interface PatreonData {
-    uuid: string,
+export interface PatreonData {
     tier: tier[],
     currentTier: tier
 }
@@ -10,4 +9,3 @@ interface tier{
     id: string
 }
 
-export { PatreonData }

@@ -6,7 +6,7 @@ const rewards = new Hono<{ Bindings: Bindings }>()
 
 rewards.get('/', async (c) => {
     const allRewards = await GetAllRewards();
-    return c.json({ rewards: allRewards })
+    return c.json( allRewards )
 })
 
 export default rewards

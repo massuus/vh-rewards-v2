@@ -18,7 +18,7 @@ async function getMinecraftUUIDByUsername(username: string): Promise<string> {
     }
     const data = await response.json() as MinecraftProfile
     if (cacheMiss) {
-        await cache(url, data, 86400)
+        await cache(url, data, 604800)
     }
     return formatUUIDAddDash(data.id)
 }
@@ -38,7 +38,7 @@ async function getMinecraftUsernameByUUID(uuid: string): Promise<string> {
     }
     const data = await response.json() as MinecraftProfile
     if (cacheMiss) {
-        await cache(url, data, 86400)
+        await cache(url, data, 604800) // 7 days
     }
     return data.name
 }
